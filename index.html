@@ -1311,7 +1311,7 @@
       </div>
 
       <div class="sb-footer">
-        <div class="api-status">
+        <div class="api-status" onclick="changeBackendURL()" style="cursor: pointer;" title="Click to change Backend API URL">
           <div class="api-status-dot" id="api-dot"></div>
           <div>
             <div class="api-status-text" id="api-text">Connecting…</div>
@@ -1420,7 +1420,30 @@
     /* =====================================================
        CONFIG & STATE
     ===================================================== */
-    const API = window.location.origin;
+    const getDefaultAPI = () => {
+      const stored = localStorage.getItem('BACKEND_API_URL');
+      if (stored) return stored;
+      const origin = window.location.origin;
+      if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.startsWith('file://')) {
+        return 'http://localhost:8000';
+      }
+      return origin;
+    };
+    const API = getDefaultAPI();
+
+    function changeBackendURL() {
+      const current = API;
+      const newURL = prompt("Enter your Backend API URL (e.g. https://codementor-api.onrender.com):", current);
+      if (newURL !== null) {
+        const trimmed = newURL.trim();
+        if (trimmed) {
+          localStorage.setItem('BACKEND_API_URL', trimmed);
+        } else {
+          localStorage.removeItem('BACKEND_API_URL');
+        }
+        window.location.reload();
+      }
+    }
     let conversationId = null;
     let isLoading = false;
     let msgCount = 0;
