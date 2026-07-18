@@ -1422,10 +1422,19 @@
     ===================================================== */
     const getDefaultAPI = () => {
       const stored = localStorage.getItem('BACKEND_API_URL');
-      if (stored) return stored;
       const origin = window.location.origin;
-      if (origin.includes('localhost') || origin.includes('127.0.0.1') || origin.startsWith('file://')) {
-        return 'http://localhost:8000';
+      const isProduction = !origin.includes('localhost') && !origin.includes('127.0.0.1') && !origin.startsWith('file://');
+      
+      // Self-healing: if loaded in production but stored is local, override and clear
+      if (isProduction && stored && (stored.includes('localhost') || stored.includes('127.0.0.1'))) {
+        localStorage.removeItem('BACKEND_API_URL');
+        return origin;
+      }
+
+      if (stored) return stored;
+
+      if (!isProduction) {
+        return 'https://codementor-api-963a.onrender.com';
       }
       return origin;
     };
